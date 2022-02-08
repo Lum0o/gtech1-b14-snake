@@ -22,7 +22,8 @@ class fruit{
     public:
         fruit();
         ~fruit();
-        int getCoo();
+        int getX();
+        int getY();
         int getType(); 
         void summon(Snake *snk);
     private:

@@ -6,7 +6,8 @@ class body {
         ~body();
         void setPrev(body*);
         void print();
-        int getCoo();
+        int getX();
+        int getY();
         int testAllCoo(int a, int b);
         void move();
         void setx(int a);

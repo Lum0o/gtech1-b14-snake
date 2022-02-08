@@ -18,8 +18,12 @@ void body::setPrev(body *a){
     this->prev = a;
 }
 
-int body::getCoo(){
-    return x, y;
+int body::getX(){
+    return this->x;
+}
+
+int body::getY(){
+    return this->y;
 }
 
 void body::setx(int a){
@@ -32,9 +36,8 @@ void body::sety(int b){
 
 void body::move(){
     if (prev != NULL){
-        int a, b = prev->getCoo();
-        x = a;
-        y = b;
+        x = prev->getX();
+        y = prev->getY();
         prev->move();
     }
 }
@@ -83,7 +86,8 @@ void Snake::move(void){
 
     tail->move();
 
-    int x, y = head->getCoo();
+    int x = head->getX();
+    int y = head->getY();
     
     if ( dir == 2) {
         head->setx(x+1);
@@ -117,8 +121,7 @@ void Snake::keyboard(void) {
 }
 
 int Snake::eat(int a, int b){
-    int c, d = head->getCoo();
-    if (a==c && b==d){
+    if (a==head->getX() && b==head->getY()){
         tail = tail->newTail();
         return 1;
     }
@@ -131,7 +134,8 @@ int Snake::getDir(){
 
 
 int Snake::colision(){
-    int a, b = head->getCoo();
+    int a = head->getX();
+    int b = head->getY();
     if (a == -1 || a == NBC){
         return 1;
     }else if(b == -1 || b == NBL){
@@ -154,13 +158,19 @@ int Snake::testBody(int a, int b){
 
 fruit::fruit(){
     this -> type = 1;
+    this -> x = 0;
+    this -> y = 0;
 
 }
 
 fruit::~fruit(){}
 
-int fruit::getCoo(){
-    return x, y;
+int fruit::getX(){
+    return this->x;
+}
+
+int fruit::getY(){
+    return this->y;
 }
 
 int fruit::getType(){
@@ -170,13 +180,19 @@ int fruit::getType(){
 void fruit::summon(Snake *snk){
     int isOkay = 1;
     do{
+        printf("x y bfr random = %d %d \n",x,y);
         int a = rand()%NBC;
         int b = rand()%NBL;
+        printf("a b aft random = %d %d\n",a,b);
 
         int test = snk->testBody(a,b);
         if (test == 0){
             isOkay = 0;
+            this -> x = a;
+            this -> y = b;
+        printf("x y aft random = %d %d\n",x,y);
         }
 
-    }while(isOkay != 1);
+
+    }while(isOkay == 1);
 }

@@ -12,6 +12,7 @@ MainSDLWindow::MainSDLWindow()
     cout << "CONSTRUCTOR!!!" << endl;
     this->window = NULL;
     this->renderer = NULL;
+    this->GameIsRunning = true;
 }
 
 MainSDLWindow::~MainSDLWindow()
@@ -21,9 +22,24 @@ MainSDLWindow::~MainSDLWindow()
     SDL_Quit();
 }
 
+bool MainSDLWindow::GetGameState(){
+    return GameIsRunning;
+}
+
 SDL_Rect MainSDLWindow::GetRect()
 {
     return rect;
+}
+
+void MainSDLWindow::quit(){
+    SDL_Event event;
+    const Uint8 *keystates = SDL_GetKeyboardState(NULL);
+
+    while(SDL_PollEvent(&event)){
+        if(event.type == SDL_QUIT){
+            GameIsRunning = false;
+        }
+    }
 }
 
 int MainSDLWindow::init(const char nom[], int width, int height)
@@ -63,9 +79,8 @@ void MainSDLWindow::Print(body *tail, fruit *fruit)
     SDL_SetRenderDrawColor(renderer, 75, 75, 75, SDL_ALPHA_OPAQUE);
     SDL_RenderClear(renderer);
 
-    int a, b = fruit->getCoo();
-    this->rect.x = a * SIZE;
-    this->rect.y = b * SIZE;
+    this->rect.x = fruit->getX() * SIZE;
+    this->rect.y = fruit->getY() * SIZE;
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, SDL_ALPHA_OPAQUE);
     SDL_RenderFillRect(renderer, &rect);
 
@@ -75,16 +90,14 @@ void MainSDLWindow::Print(body *tail, fruit *fruit)
     Segment = tail;
     while (Segment->getPrev() != NULL)
     {
-        a, b = Segment->getCoo();
-        rect.x = a * SIZE;
-        rect.y = b * SIZE;
+        rect.x = Segment->getX() * SIZE;
+        rect.y = Segment->getY() * SIZE;
         SDL_SetRenderDrawColor(renderer, 0, 200, 0, SDL_ALPHA_OPAQUE);
         SDL_RenderFillRect(renderer, &rect);
         Segment = Segment->getPrev();
     }
-    a, b = Segment->getCoo();
-    rect.x = a * SIZE;
-    rect.y = b * SIZE;
+    rect.x = Segment->getX() * SIZE;
+    rect.y = Segment->getY() * SIZE;
     SDL_SetRenderDrawColor(renderer, 0, 255, 0, SDL_ALPHA_OPAQUE);
     SDL_RenderFillRect(renderer, &rect);
 

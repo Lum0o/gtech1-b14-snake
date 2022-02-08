@@ -30,16 +30,13 @@ int main_coach()
 int main()
 {
     MainSDLWindow window;
-    window.init("Snake", 200, 200);
-    
-    printf("salut");
+    window.init("Snake", 1024, 512);
+
     srand((unsigned int)time(0));
 
     Snake *snk = new Snake();
     fruit *frt = new fruit();
-    //frt->summon(snk);
-
-    int GameIsRunning = 1;
+    frt->summon(snk);
 
     int frame_delay;
     Uint32 frame_start;
@@ -47,20 +44,13 @@ int main()
 
     do
     {
-        SDL_PollEvent(&event);
-        switch(event.type) {
-          case SDL_QUIT:
-            GameIsRunning = 0;
-            break;
-        }
+        window.quit();
         SDL_Delay(100);
-        cout << "test2" << endl;
-        // continue;
-        // snk->keyboard();
-        // cout << "test3" << endl;
-        // //snk->move();
-        // SDL_Delay(100);
-        
+        snk->keyboard();
+        snk->move();
+        SDL_Delay(100);
+        window.Print(snk->tail , frt);
+
         // cout << "test4" << endl;
 
         // int test = 0;
@@ -73,7 +63,7 @@ int main()
         // cout << "GameIsRunning" << GameIsRunning << endl;
         // if (GameIsRunning == 0) break;
         // continue;
-        
+
         // cout << "test2" << endl;
         // int a, b = frt->getCoo();
         // if (snk->eat(a, b) == 1)
@@ -85,7 +75,7 @@ int main()
         // if (frame_delay > 0)
         // SDL_Delay(frame_delay);
 
-    } while (GameIsRunning == 1);
+    } while (window.GetGameState());
 
     if(snk != NULL) delete snk;
     if(frt != NULL) delete frt;
