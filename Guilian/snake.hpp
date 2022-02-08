@@ -1,6 +1,5 @@
 #pragma once
 #include "body.hpp"
-#include "fruit.hpp"
 
 class Snake {
     public:
@@ -11,10 +10,23 @@ class Snake {
         void newTail();
         int getDir();
         int testBody(int a, int b);
-        void eat(fruit fruit, Snake snk);
+        int eat(int a, int b);
         int colision();
-        body head;
-        body tail;
+        body *head;
+        body *tail;
     private:
         int dir;
 };   
+
+class fruit{
+    public:
+        fruit();
+        ~fruit();
+        int getCoo();
+        int getType(); 
+        void summon(Snake *snk);
+    private:
+        int x;
+        int y;
+        int type;
+};

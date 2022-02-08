@@ -1,8 +1,6 @@
 #pragma once
 #include <SDL2/SDL.h>
-#include <string>
-#include <iostream>
-#include <cstdlib>
+#include "snake.hpp"
 
 using namespace std;
 
@@ -14,6 +12,7 @@ class MainSDLWindow {
         SDL_Renderer *GetRenderer();
         SDL_Rect GetRect();
         SDL_Rect rect;
+        void Print(body *tail, fruit *fruit);
     private:
         SDL_Window * window;
         SDL_Renderer * renderer;

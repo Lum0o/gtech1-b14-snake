@@ -1,60 +1,21 @@
 #include <ctime>
-#include "MainSDLWindow.hpp"
+#include <SDL2/SDL.h>
 #include "snake.hpp"
 #include "body.hpp"
-#include "fruit.hpp"
 
 #define NBL 16
 #define NBC 32
 
-// MAINSDLWINDOWS : création de fenêtre
-
-MainSDLWindow::MainSDLWindow(){
-    this-> window, renderer = NULL;
-}
-
-MainSDLWindow::~MainSDLWindow(){
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-    SDL_Quit();
-}
-
-SDL_Rect MainSDLWindow::GetRect(){
-    return rect;
-}
-
-int MainSDLWindow::init(const char nom[], int width, int height){
-    window = SDL_CreateWindow(nom,SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED, width , height , SDL_WINDOW_RESIZABLE);
-    if(window == NULL){
-        cout << "Erreur lors de la creation d'une fenetre :" << SDL_GetError();
-        return EXIT_FAILURE;
-    } 
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    if(renderer == NULL){
-        cout << "Erreur lors de la creation d'un renderer :" << SDL_GetError();
-        return EXIT_FAILURE;
-    }
-    rect.x = 300;
-    rect.y = 300;
-    rect.h = 20;
-    rect.w = 20;
-    return EXIT_SUCCESS;
-}
-
-SDL_Renderer *MainSDLWindow::GetRenderer(void){
-    return renderer;
-}
-
 //BODY : classe pour un morceau de serpent
 
 body::body(){
-    this -> prev = NULL;
+    this->prev = NULL;
 }
 
 body::~body(){}
 
-void body::setPrev(body a){
-    *prev = a;
+void body::setPrev(body *a){
+    this->prev = a;
 }
 
 int body::getCoo(){
@@ -66,7 +27,7 @@ void body::setx(int a){
 }
 
 void body::sety(int b){
-    x = b;
+    y = b;
 }
 
 void body::move(){
@@ -79,18 +40,11 @@ void body::move(){
 }
 
 int body::testAllCoo(int a, int b){
-    if (prev != NULL){
-
-        int test = prev->testAllCoo(a,b);
-        
-        if (test == 1){
-            return 1;
-        }
-        if (x == a && y == b){
-            return 1;
-        
-        return 0;
-        }
+    if (this->x == a && this->y == b){
+        return 1;
+    }
+    if (this->prev != NULL){
+        return this->prev->testAllCoo(a, b);
     }
     return 0;
 }
@@ -100,12 +54,25 @@ void body::setCoo(int a, int b){
     y = b;
 }
 
+body* body::newTail(){
+    body *test;
+    test->prev = this;
+    test->setx(x);
+    test->sety(y);
+    return test;
+}
+
+body* body::getPrev(){
+    return prev;
+}
+
 //SNAKE : class pour une entitée "serpent"
 
 Snake::Snake(){
-    head.setx(NBC/2);
-    head.sety(NBL/2);
-    tail = head;
+    this->head = new body();
+    this->head->setx(NBC/2);
+    this->head->sety(NBL/2);
+    this->tail = this->head;
     dir = 3;
 }
 
@@ -114,21 +81,21 @@ Snake::~Snake(){
 
 void Snake::move(void){
 
-    tail.move();
+    tail->move();
 
-    int x, y = head.getCoo();
+    int x, y = head->getCoo();
     
     if ( dir == 2) {
-        head.setx(x+1);
+        head->setx(x+1);
     }
     else if ( dir == 1) {
-        head.setx(x-1);
+        head->setx(x-1);
     }
     else if ( dir == 3) {
-        head.sety(y+1);
+        head->sety(y+1);
     }
     else if ( dir == 4) {
-        head.sety(y-1);
+        head->sety(y-1);
     }
 }
 
@@ -149,21 +116,13 @@ void Snake::keyboard(void) {
   }
 }
 
-void Snake::eat(fruit fruit, Snake snk){
-    int a, b = fruit.getCoo();
-    int c, d = head.getCoo();
+int Snake::eat(int a, int b){
+    int c, d = head->getCoo();
     if (a==c && b==d){
-        fruit.summon(snk);
-        newTail();
+        tail = tail->newTail();
+        return 1;
     }
-}
-
-void Snake::newTail(){
-    body newTail;
-    int a, b = tail.getCoo();
-    newTail.setCoo(a ,b);
-    newTail.setPrev(tail);
-    tail = newTail;
+    return 0;
 }
 
 int Snake::getDir(){
@@ -172,13 +131,13 @@ int Snake::getDir(){
 
 
 int Snake::colision(){
-    int a, b = head.getCoo();
+    int a, b = head->getCoo();
     if (a == -1 || a == NBC){
         return 1;
     }else if(b == -1 || b == NBL){
         return 1;
     }
-    int test = tail.testAllCoo(a,b);
+    int test = tail->testAllCoo(a,b);
     if (test == 1){
         return 1;
     }
@@ -187,7 +146,7 @@ int Snake::colision(){
 }
 
 int Snake::testBody(int a, int b){
-    int test = tail.testAllCoo(a, b);
+    int test = tail->testAllCoo(a, b);
     return test;
 }
 
@@ -208,16 +167,13 @@ int fruit::getType(){
     return type;
 }
 
-void fruit::summon(Snake snk){
-
+void fruit::summon(Snake *snk){
     int isOkay = 1;
     do{
-        srand((unsigned int)time(0));
+        int a = rand()%NBC;
+        int b = rand()%NBL;
 
-        int a = rand()%NBC -1;
-        int b = rand()%NBL -1;
-
-        int test = snk.testBody(a,b);
+        int test = snk->testBody(a,b);
         if (test == 0){
             isOkay = 0;
         }
