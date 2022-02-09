@@ -42,40 +42,31 @@ int main()
     Uint32 frame_start;
     SDL_Event event;
 
+    int GameIsRunning = 1;
+
     do
     {
+        frame_start = SDL_GetTicks();
         window.quit();
-        SDL_Delay(100);
         snk->keyboard();
         snk->move();
-        SDL_Delay(100);
-        window.Print(snk->tail , frt);
+        window.Print(snk->tail , frt, snk->getScore());
 
-        // cout << "test4" << endl;
+        int test = 0;
+        test = snk->colision();
+        if (test == 1){
+             GameIsRunning = 0;
+         }
+         if (snk->eat(frt->getX(), frt->getY()) == 1)
+         {
+             frt->summon(snk);
+         }
 
-        // int test = 0;
-        // //test = snk->colision();
-        // if (test == 1)
-        // {
-        //     GameIsRunning = 0;
-        // }
+        frame_delay = 100 - (SDL_GetTicks() - frame_start);
+        if (frame_delay > 0)
+          SDL_Delay(frame_delay);
 
-        // cout << "GameIsRunning" << GameIsRunning << endl;
-        // if (GameIsRunning == 0) break;
-        // continue;
-
-        // cout << "test2" << endl;
-        // int a, b = frt->getCoo();
-        // if (snk->eat(a, b) == 1)
-        // {
-        //     frt->summon(snk);
-        // }
-
-        // frame_delay = 20 - (SDL_GetTicks() - frame_start);
-        // if (frame_delay > 0)
-        // SDL_Delay(frame_delay);
-
-    } while (window.GetGameState());
+    } while (window.GetGameState() && GameIsRunning == 1);
 
     if(snk != NULL) delete snk;
     if(frt != NULL) delete frt;

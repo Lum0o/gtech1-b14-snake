@@ -9,7 +9,6 @@
 
 MainSDLWindow::MainSDLWindow()
 {
-    cout << "CONSTRUCTOR!!!" << endl;
     this->window = NULL;
     this->renderer = NULL;
     this->GameIsRunning = true;
@@ -44,10 +43,15 @@ void MainSDLWindow::quit(){
 
 int MainSDLWindow::init(const char nom[], int width, int height)
 {
-    cout << "INIT!!!" << endl;
+
     // Init SDL:
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
     {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", SDL_GetError());
+        return EXIT_FAILURE;
+    }
+
+    if(TTF_Init() == -1){
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", SDL_GetError());
         return EXIT_FAILURE;
     }
@@ -63,6 +67,14 @@ int MainSDLWindow::init(const char nom[], int width, int height)
         cout << "Erreur lors de la creation d'un renderer :" << SDL_GetError();
         return EXIT_FAILURE;
     }
+
+    font = TTF_OpenFont("BAHNSCHRIFT.TTF", 40);
+
+    if (font == NULL){
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", SDL_GetError());
+        return EXIT_FAILURE;
+    }
+
     rect.h = SIZE;
     rect.w = SIZE;
     return EXIT_SUCCESS;
@@ -73,7 +85,7 @@ SDL_Renderer *MainSDLWindow::GetRenderer(void)
     return renderer;
 }
 
-void MainSDLWindow::Print(body *tail, fruit *fruit)
+void MainSDLWindow::Print(body *tail, fruit *fruit, int score)
 {
 
     SDL_SetRenderDrawColor(renderer, 75, 75, 75, SDL_ALPHA_OPAQUE);
@@ -100,6 +112,17 @@ void MainSDLWindow::Print(body *tail, fruit *fruit)
     rect.y = Segment->getY() * SIZE;
     SDL_SetRenderDrawColor(renderer, 0, 255, 0, SDL_ALPHA_OPAQUE);
     SDL_RenderFillRect(renderer, &rect);
+
+    scoreString = "score : " + to_string(score);
+    scoreText = scoreString.c_str();
+    textZone = TTF_RenderText_Solid(font, scoreText, {0, 0, 0});
+    scoreArea.x = 0;
+    scoreArea.y = 0;
+    scoreArea.w = textZone->w;
+    scoreArea.h = textZone->h;
+    text = SDL_CreateTextureFromSurface(renderer, textZone);
+    SDL_RenderCopy(renderer, text, NULL, &scoreArea);
+    
 
     SDL_RenderPresent(renderer); // Refresh the renderer
 }

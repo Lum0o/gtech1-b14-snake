@@ -12,10 +12,12 @@ class Snake {
         int testBody(int a, int b);
         int eat(int a, int b);
         int colision();
+        int getScore();
         body *head;
         body *tail;
     private:
         int dir;
+        int score;
 };   
 
 class fruit{

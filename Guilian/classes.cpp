@@ -6,6 +6,12 @@
 #define NBL 16
 #define NBC 32
 
+#define UP 1
+#define DOWN 2
+#define RIGHT 3
+#define LEFT 4
+#define PAUSE 0
+
 //BODY : classe pour un morceau de serpent
 
 body::body(){
@@ -43,7 +49,7 @@ void body::move(){
 }
 
 int body::testAllCoo(int a, int b){
-    if (this->x == a && this->y == b){
+    if (this->x == a && this->y == b && prev != NULL){
         return 1;
     }
     if (this->prev != NULL){
@@ -58,10 +64,10 @@ void body::setCoo(int a, int b){
 }
 
 body* body::newTail(){
-    body *test;
+    body *test = new body();
     test->prev = this;
-    test->setx(x);
-    test->sety(y);
+    test->setx(this->x);
+    test->sety(this->y);
     return test;
 }
 
@@ -76,7 +82,8 @@ Snake::Snake(){
     this->head->setx(NBC/2);
     this->head->sety(NBL/2);
     this->tail = this->head;
-    dir = 3;
+    dir = PAUSE;
+    score = 0;
 }
 
 Snake::~Snake(){
@@ -84,45 +91,48 @@ Snake::~Snake(){
 
 void Snake::move(void){
 
-    tail->move();
+    if (dir != PAUSE){
+      tail->move();
+    }
 
     int x = head->getX();
     int y = head->getY();
     
-    if ( dir == 2) {
-        head->setx(x+1);
+    if ( dir == UP) {
+        head->sety(y-1);
     }
-    else if ( dir == 1) {
-        head->setx(x-1);
-    }
-    else if ( dir == 3) {
+    else if ( dir == DOWN) {
         head->sety(y+1);
     }
-    else if ( dir == 4) {
-        head->sety(y-1);
+    else if ( dir == RIGHT) {
+        head->setx(x+1);
+    }
+    else if ( dir == LEFT) {
+        head->setx(x-1);
     }
 }
 
 void Snake::keyboard(void) {
   const Uint8 *keystates = SDL_GetKeyboardState(NULL);
 
-  if (keystates[SDL_SCANCODE_UP] && dir != 2) {
-    dir = 1;
+  if (keystates[SDL_SCANCODE_UP] && dir != DOWN) {
+    dir = UP;
   }
-  else if (keystates[SDL_SCANCODE_DOWN] && dir != 1) {
-    dir = 2;
+  else if (keystates[SDL_SCANCODE_DOWN] && dir != UP) {
+    dir = DOWN;
   }
-  else if (keystates[SDL_SCANCODE_LEFT] && dir != 3) {
-    dir = 4;
+  else if (keystates[SDL_SCANCODE_LEFT] && dir != RIGHT) {
+    dir = LEFT;
   }
-  else if (keystates[SDL_SCANCODE_RIGHT] && dir != 4) {
-    dir = 3;
+  else if (keystates[SDL_SCANCODE_RIGHT] && dir != LEFT) {
+    dir = RIGHT;
   }
 }
 
 int Snake::eat(int a, int b){
     if (a==head->getX() && b==head->getY()){
         tail = tail->newTail();
+        score ++;
         return 1;
     }
     return 0;
@@ -132,13 +142,18 @@ int Snake::getDir(){
     return dir;
 }
 
+int Snake::getScore(){
+    return score;
+}
+
 
 int Snake::colision(){
     int a = head->getX();
     int b = head->getY();
-    if (a == -1 || a == NBC){
+
+    if (a < 0 || a > NBC){
         return 1;
-    }else if(b == -1 || b == NBL){
+    }else if(b < 0 || b > NBL){
         return 1;
     }
     int test = tail->testAllCoo(a,b);
@@ -180,17 +195,14 @@ int fruit::getType(){
 void fruit::summon(Snake *snk){
     int isOkay = 1;
     do{
-        printf("x y bfr random = %d %d \n",x,y);
         int a = rand()%NBC;
         int b = rand()%NBL;
-        printf("a b aft random = %d %d\n",a,b);
 
         int test = snk->testBody(a,b);
         if (test == 0){
             isOkay = 0;
             this -> x = a;
             this -> y = b;
-        printf("x y aft random = %d %d\n",x,y);
         }
 
 
